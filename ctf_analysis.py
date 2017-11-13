@@ -108,8 +108,6 @@ def main(files):
                    "dif": def_diff_slider,
                    "ccs": cc_slider}
         for (key, slider) in sliders.iteritems():
-            print key
-            print slider
             callback.args[key] = slider
             slider.js_on_change('value', callback)
 
