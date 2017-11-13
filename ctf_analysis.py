@@ -11,31 +11,25 @@ from ctf_extraction import build_df
 
 
 def main(files):
+    """Create plots"""
     def create_histograms():
-        plot_width = 600
-        plot_height = 400
+        """Output grid for all histograms"""
+        def plot_histogram(data, label):
+            """Create a single histogram"""
+            hist = figure(title=label, plot_width=600, plot_height=400)
+            data_hist, edges_hist = np.histogram(data, bins=50)
+            hist.quad(top=data_hist, bottom=0, left=edges_hist[:-1],
+                      right=edges_hist[1:], alpha=0.5)
+            hist.xaxis.axis_label = label
+            return hist
 
-        h1 = figure(title="Resolution summary", plot_width=plot_width, plot_height=plot_height)
-        res_hist, res_edges = np.histogram(source_available.data['Resolution_limit'], bins=50)
-        h1.quad(top=res_hist, bottom=0, left=res_edges[:-1], right=res_edges[1:], alpha=0.5)
-        h1.xaxis.axis_label = "Resolution"
+        hist1 = plot_histogram(source_available.data['Resolution_limit'], 'Resolution')
+        hist2 = plot_histogram(source_available.data['Defocus'], 'Defocus')
+        hist3 = plot_histogram(source_available.data['CC_score'], 'CC Score')
+        hist4 = plot_histogram(source_available.data['Defocus_difference'], 'Defocus Difference')
 
-        h2 = figure(title="Defocus summary", plot_width=plot_width, plot_height=plot_height)
-        def_hist, def_edges = np.histogram(source_available.data['Defocus'], bins=50)
-        h2.quad(top=def_hist, bottom=0, left=def_edges[:-1], right=def_edges[1:], alpha=0.5)
-        h2.xaxis.axis_label = "Defocus"
-
-        h3 = figure(title="CC Score summary", plot_width=plot_width, plot_height=plot_height)
-        cc_hist, cc_edges = np.histogram(source_available.data['CC_score'], bins=50)
-        h3.quad(top=cc_hist, bottom=0, left=cc_edges[:-1], right=cc_edges[1:], alpha=0.5)
-        h3.xaxis.axis_label = "CC Score"
-
-        h4 = figure(title="Defocus difference summary", plot_width=plot_width, plot_height=plot_height)
-        dif_hist, dif_edges = np.histogram(source_available.data['Defocus_difference'], bins=50)
-        h4.quad(top=dif_hist, bottom=0, left=dif_edges[:-1], right=dif_edges[1:], alpha=0.5)
-        h4.xaxis.axis_label = "Defocus difference"
-        return gridplot([h1, h2],
-                        [h3, h4])
+        return gridplot([hist1, hist2],
+                        [hist3, hist4])
 
     def create_scatterplots():
         plot_width = 750
@@ -109,15 +103,13 @@ def main(files):
                            title="CC_Score",
                            value=CC_MIN)
 
-        callback.args["res"] = res_slider
-        callback.args["def"] = defocus_slider
-        callback.args["dif"] = def_diff_slider
-        callback.args["ccs"] = cc_slider
-
-        res_slider.js_on_change('value', callback)
-        defocus_slider.js_on_change('value', callback)
-        def_diff_slider.js_on_change('value', callback)
-        cc_slider.js_on_change('value', callback)
+        sliders = {"res": res_slider,
+                   "def": defocus_slider,
+                   "dif": def_diff_slider,
+                   "ccs": cc_slider}
+        for (key, slider) in sliders.iteritems():
+            callback.args[key] = slider
+            slider.js_on_change('value', callback)
 
         def save_subset_star():
             keep_list = df[
