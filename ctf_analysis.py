@@ -7,7 +7,7 @@ from bokeh.layouts import gridplot
 from bokeh.models.widgets import RangeSlider, Slider, TextInput, Button, Tabs, Panel, PreText
 from bokeh.models import CustomJS, ColumnDataSource, HoverTool
 
-from ctf_extraction import build_df
+from ctf_extraction import build_df, write_subset_star
 
 
 def main(files):
@@ -35,28 +35,28 @@ def main(files):
         plot_width = 750
         plot_height = 600
 
-        s1 = figure(title="Defocus vs. Resolution", tools=TOOLS, plot_width=plot_width, plot_height=plot_height)
-        s1.xaxis.axis_label = "Defocus"
-        s1.yaxis.axis_label = "Estimated resolution"
-        s1.circle(source=source_visible, x='Defocus', y='Resolution_limit', color="mediumvioletred", alpha=0.75)
+        scatter1 = figure(title="Defocus vs. Resolution", tools=TOOLS, plot_width=plot_width, plot_height=plot_height)
+        scatter1.xaxis.axis_label = "Defocus"
+        scatter1.yaxis.axis_label = "Estimated resolution"
+        scatter1.circle(source=source_visible, x='Defocus', y='Resolution_limit', color="mediumvioletred", alpha=0.75)
 
-        s2 = figure(title="Defocus difference vs. CC score", tools=TOOLS, plot_width=plot_width,
+        scatter2 = figure(title="Defocus difference vs. CC score", tools=TOOLS, plot_width=plot_width,
                     plot_height=plot_height)
-        s2.xaxis.axis_label = "Defocus difference"
-        s2.yaxis.axis_label = "CC Score"
-        s2.circle(source=source_visible, x='Defocus_difference', y='CC_score', color="royalblue", alpha=0.75)
+        scatter2.xaxis.axis_label = "Defocus difference"
+        scatter2.yaxis.axis_label = "CC Score"
+        scatter2.circle(source=source_visible, x='Defocus_difference', y='CC_score', color="royalblue", alpha=0.75)
 
-        hover = s1.select_one(HoverTool).tooltips = [
+        hover = scatter1.select_one(HoverTool).tooltips = [
             ("Mic", "@Micrograph_name")
         ]
-        hover = s2.select_one(HoverTool).tooltips = [
+        hover = scatter2.select_one(HoverTool).tooltips = [
             ("Mic", "@Micrograph_name")
         ]
 
         callback = CustomJS(args=dict(source_visible=source_visible,
                                       source_available=source_available), code="""
-                var data_visible = source_visible.get('data');
-                var data_available = source_available.get('data');
+                var data_visible = source_visible.data;
+                var data_available = source_available.data;
 
                 var res_max = res.value;
                 var def_min = def.value[0];
@@ -76,7 +76,7 @@ def main(files):
                         }
                     }
                 }
-                source_visible.trigger('change');
+                source_visible.change.emit();
             """)
 
         res_slider = Slider(start=0,
@@ -112,71 +112,70 @@ def main(files):
             slider.js_on_change('value', callback)
 
         def save_subset_star():
-            keep_list = df[
-                (df['Resolution_limit'] <= res_slider.value) &
-                (df['Defocus'] >= defocus_slider.value[0]) &
-                (df['Defocus'] <= defocus_slider.value[1]) &
-                (df['Defocus_difference'] <= def_diff_slider.value) &
-                (df['CC_score'] >= cc_slider.value)
+            """"Save selected subset to new star file"""
+            keep_list = data[
+                (data['Resolution_limit'] <= res_slider.value) &
+                (data['Defocus'] >= defocus_slider.value[0]) &
+                (data['Defocus'] <= defocus_slider.value[1]) &
+                (data['Defocus_difference'] <= def_diff_slider.value) &
+                (data['CC_score'] >= cc_slider.value)
                 ]['Micrograph_name'].values
             write_subset_star(star_in.value, star_out.value, keep_list)
 
         def write_summary():
-            subset_summary.text = "Subset dataset:\n{0}".format(str(df[
-                                                                        (df[
-                                                                             'Resolution_limit'] <= res_slider.value) &
-                                                                        (df['Defocus'] >= defocus_slider.value[0]) &
-                                                                        (df['Defocus'] <= defocus_slider.value[1]) &
-                                                                        (df[
-                                                                             'Defocus_difference'] <= def_diff_slider.value) &
-                                                                        (df['CC_score'] >= cc_slider.value)
-                                                                        ][['Resolution_limit',
-                                                                           'Defocus',
-                                                                           'Defocus_difference',
-                                                                           'CC_score']].describe()))
+            """Write summary data of selected subset"""
+            subset_summary.text = "Subset dataset:\n{0}".format(str(data[
+                (data['Resolution_limit'] <= res_slider.value) &
+                (data['Defocus'] >= defocus_slider.value[0]) &
+                (data['Defocus'] <= defocus_slider.value[1]) &
+                (data['Defocus_difference'] <= def_diff_slider.value) &
+                (data['CC_score'] >= cc_slider.value)
+                ][['Resolution_limit', 'Defocus',
+                   'Defocus_difference', 'CC_score']].describe()))
 
         csv_name = TextInput(value="ctf_data.csv", title="Output CSV:")
         save_all_csv = Button(label="Save all csv", button_type="success")
-        save_all_csv.on_click(lambda: df.to_csv(csv_name.value, index=False))
+        save_all_csv.on_click(lambda: data.to_csv(csv_name.value, index=False))
         save_subset_csv = Button(label="Save subset csv", button_type="success")
-        save_subset_csv.on_click(lambda: df[
-            (df['Resolution_limit'] <= res_slider.value) &
-            (df['Defocus'] >= defocus_slider.value[0]) &
-            (df['Defocus'] <= defocus_slider.value[1]) &
-            (df['Defocus_difference'] <= def_diff_slider.value) &
-            (df['CC_score'] >= cc_slider.value)
+        save_subset_csv.on_click(lambda: data[
+            (data['Resolution_limit'] <= res_slider.value) &
+            (data['Defocus'] >= defocus_slider.value[0]) &
+            (data['Defocus'] <= defocus_slider.value[1]) &
+            (data['Defocus_difference'] <= def_diff_slider.value) &
+            (data['CC_score'] >= cc_slider.value)
             ].to_csv(csv_name.value, index=False))
         star_in = TextInput(value=default_star, title="Input star:")
         star_out = TextInput(value="subset_micrographs.star", title="Output star:")
         save_star = Button(label="Save star", button_type="success")
         save_star.on_click(save_subset_star)
-        total_summary = PreText(text="Total dataset:\n{0}".format(str(df[['Resolution_limit',
-                                                                              'Defocus',
-                                                                              'Defocus_difference',
-                                                                              'CC_score']].describe())), width=600)
+        total_summary = PreText(text="Total dataset:\n{0}".format(str(data[[
+            'Resolution_limit',
+            'Defocus',
+            'Defocus_difference',
+            'CC_score']].describe())), width=600)
         subset_summary = PreText(text='', width=600)
         summary_button = Button(label="Summary Stats", button_type="success")
         summary_button.on_click(write_summary)
 
-        return gridplot([s1, s2],
+        return gridplot([scatter1, scatter2],
                         [res_slider, defocus_slider, def_diff_slider, cc_slider, summary_button],
                         [total_summary, subset_summary],
                         [csv_name, star_in, star_out],
                         [save_all_csv, save_star],
                         [save_subset_csv])
 
-    df = build_df(files)
+    data = build_df(files)
 
     TOOLS = "crosshair,pan,tap,box_select,wheel_zoom,box_zoom,reset,hover,save"
     default_star = "micrographs_all_gctf.star"
-    RESOLUTION_MAX = ceil(df['Resolution_limit'].max())
-    DEFOCUS_MAX = ceil(df['Defocus'].max() / 1000) * 1000
-    DEFOCUS_DIFF_MAX = ceil(df['Defocus_difference'].max() / 100) * 100
-    CC_MIN = floor(df['CC_score'].min() * 100) / 100
-    CC_MAX = ceil(df['CC_score'].max() * 100) / 100
+    RESOLUTION_MAX = ceil(data['Resolution_limit'].max())
+    DEFOCUS_MAX = ceil(data['Defocus'].max() / 1000) * 1000
+    DEFOCUS_DIFF_MAX = ceil(data['Defocus_difference'].max() / 100) * 100
+    CC_MIN = floor(data['CC_score'].min() * 100) / 100
+    CC_MAX = ceil(data['CC_score'].max() * 100) / 100
 
-    source_visible = ColumnDataSource(df)
-    source_available = ColumnDataSource(df)
+    source_visible = ColumnDataSource(data)
+    source_available = ColumnDataSource(data)
 
     scatter_layout = create_scatterplots()
     hist_layout = create_histograms()
