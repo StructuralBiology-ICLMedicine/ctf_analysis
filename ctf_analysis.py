@@ -7,10 +7,10 @@ from bokeh.layouts import gridplot
 from bokeh.models.widgets import RangeSlider, Slider, TextInput, Button, Tabs, Panel, PreText
 from bokeh.models import CustomJS, ColumnDataSource, HoverTool
 
-from helper.ctf_log_extraction import build_df, write_subset_star
+from helper.ctf_log_extraction import write_subset_star
 
 
-def main(files):
+def main(data):
     """Create plots"""
     def create_histograms():
         """Output grid for all histograms"""
@@ -177,8 +177,6 @@ def main(files):
                         [csv_name, star_in, star_out],
                         [save_all_csv, save_star],
                         [save_subset_csv])
-
-    data = build_df(files)
 
     TOOLS = "crosshair,pan,tap,box_select,wheel_zoom,box_zoom,reset,hover,save"
     default_star = "micrographs_all_gctf.star"
