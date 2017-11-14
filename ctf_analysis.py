@@ -7,7 +7,7 @@ from bokeh.layouts import gridplot
 from bokeh.models.widgets import RangeSlider, Slider, TextInput, Button, Tabs, Panel, PreText
 from bokeh.models import CustomJS, ColumnDataSource, HoverTool
 
-from ctf_extraction import build_df, write_subset_star
+from helper.ctf_log_extraction import build_df, write_subset_star
 
 
 def main(files):
@@ -32,19 +32,33 @@ def main(files):
                         [hist3, hist4])
 
     def create_scatterplots():
+        """Output scatterplot layout"""
         plot_width = 750
         plot_height = 600
 
-        scatter1 = figure(title="Defocus vs. Resolution", tools=TOOLS, plot_width=plot_width, plot_height=plot_height)
+        scatter1 = figure(title="Defocus vs. Resolution",
+                          tools=TOOLS,
+                          plot_width=plot_width,
+                          plot_height=plot_height)
         scatter1.xaxis.axis_label = "Defocus"
         scatter1.yaxis.axis_label = "Estimated resolution"
-        scatter1.circle(source=source_visible, x='Defocus', y='Resolution_limit', color="mediumvioletred", alpha=0.75)
+        scatter1.circle(source=source_visible,
+                        x='Defocus',
+                        y='Resolution_limit',
+                        color="mediumvioletred",
+                        alpha=0.75)
 
-        scatter2 = figure(title="Defocus difference vs. CC score", tools=TOOLS, plot_width=plot_width,
-                    plot_height=plot_height)
+        scatter2 = figure(title="Defocus difference vs. CC score",
+                          tools=TOOLS,
+                          plot_width=plot_width,
+                          plot_height=plot_height)
         scatter2.xaxis.axis_label = "Defocus difference"
         scatter2.yaxis.axis_label = "CC Score"
-        scatter2.circle(source=source_visible, x='Defocus_difference', y='CC_score', color="royalblue", alpha=0.75)
+        scatter2.circle(source=source_visible,
+                        x='Defocus_difference',
+                        y='CC_score',
+                        color="royalblue",
+                        alpha=0.75)
 
         hover = scatter1.select_one(HoverTool).tooltips = [
             ("Mic", "@Micrograph_name")
