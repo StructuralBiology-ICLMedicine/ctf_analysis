@@ -1,10 +1,10 @@
 """Main file to handle input"""
-
 import argparse
 import ctf_analysis as ctf
+from helper.ctf_log_extraction import logs_build_df, star_build_df
 
 def main():
-    """Run app"""
+    """Run"""
     parser = argparse.ArgumentParser()
     parser.add_argument('input',
                         help="path to input e.g. Microgrpahs/*ctffind3.log",
@@ -12,7 +12,11 @@ def main():
 
     args = parser.parse_args()
     files = args.input
+    if files[0].endswith("star"):
+        data = star_build_df(files[0])
+    else:
+        data = logs_build_df(files)
 
-    ctf.main(files)
+    ctf.main(data)
 
 main()
