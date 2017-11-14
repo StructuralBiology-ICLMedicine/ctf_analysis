@@ -179,12 +179,12 @@ def main(data):
                         [save_subset_csv])
 
     TOOLS = "crosshair,pan,tap,box_select,wheel_zoom,box_zoom,reset,hover,save"
-    default_star = "micrographs_all_gctf.star"
     RESOLUTION_MAX = ceil(data['Resolution_limit'].max())
     DEFOCUS_MAX = ceil(data['Defocus'].max() / 1000) * 1000
     DEFOCUS_DIFF_MAX = ceil(data['Defocus_difference'].max() / 100) * 100
     CC_MIN = floor(data['CC_score'].min() * 100) / 100
     CC_MAX = ceil(data['CC_score'].max() * 100) / 100
+    default_star = "micrographs_all_gctf.star"
 
     source_visible = ColumnDataSource(data)
     source_available = ColumnDataSource(data)
