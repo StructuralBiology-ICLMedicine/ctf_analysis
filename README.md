@@ -12,14 +12,14 @@ Four fields are plotted:
 * Cross correlation score
 
 ### Running
-The only input needed is the path to your CTF log files (e.g. Micrographs/*ctffind3.log). At some point you will be able to just give the star file output from GCTF or CTFFIND4 (if run through relion).
+The only input needed is the path to your CTF log files (e.g. Micrographs/*ctffind3.log) or the star file output from after CTF estimation (e.g. micrographs_all_gctf.star) as long as it contains the resolution.
 
 The command is `bokeh serve --show /path/to/.../ctf_analysis/ --args input` (e.g. `bokeh serve --show /path/to/.../ctf_analysis/ --args Micrographs/*.log`). I would make an alias in your .bashrc (e.g.`alias ctf_analysis='bokeh serve --show /path/to/.../ctf_analysis/ --args'`) and then you can just run `ctf_analysis Micrographs/*.log`.
 
 ### Result
 This command should automatically open your browser to `localhost:5006` (or else open manually). The main page should look similar to below:
 ![alt text](assets/main_page.png "Main Page example")
-The plots are responsive and the sliders allow you to filter your data. The plots are linked so if you filter a point away on the left plot it will be removed from the right.
+The plots are responsive and linked. The sliders allow you to filter your data and if you filter a point away on the left plot it will be removed from the right.
 
 A summary of the complete dataset is given and you can generate one for your current subset by clicking the `Summary Stats` button.
 
@@ -29,6 +29,3 @@ Output a star file to read into relion containing just your current subset with 
 
 There is a second tab (Summary) that just contains histograms to show your overall data distribution. These don't do anything fun.
 ![alt text](assets/summary_page.png "Summary Page example")
-
-
-
