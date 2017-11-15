@@ -16,7 +16,10 @@ def main(files):
         """Output grid for all histograms"""
         def plot_histogram(data, label):
             """Create a single histogram"""
-            hist = figure(title=label, plot_width=600, plot_height=400)
+            hist = figure(title=label,
+                          plot_width=600,
+                          plot_height=400,
+                          output_backend="webgl")
             data_hist, edges_hist = np.histogram(data, bins=50)
             hist.quad(top=data_hist, bottom=0, left=edges_hist[:-1],
                       right=edges_hist[1:], alpha=0.5)
@@ -39,7 +42,8 @@ def main(files):
         scatter1 = figure(title="Defocus vs. Resolution",
                           tools=TOOLS,
                           plot_width=plot_width,
-                          plot_height=plot_height)
+                          plot_height=plot_height,
+                          output_backend="webgl")
         scatter1.xaxis.axis_label = "Defocus"
         scatter1.yaxis.axis_label = "Estimated resolution"
         scatter1.circle(source=source_visible,
@@ -51,7 +55,8 @@ def main(files):
         scatter2 = figure(title="Defocus difference vs. CC score",
                           tools=TOOLS,
                           plot_width=plot_width,
-                          plot_height=plot_height)
+                          plot_height=plot_height,
+                          output_backend="webgl")
         scatter2.xaxis.axis_label = "Defocus difference"
         scatter2.yaxis.axis_label = "CC Score"
         scatter2.circle(source=source_visible,
