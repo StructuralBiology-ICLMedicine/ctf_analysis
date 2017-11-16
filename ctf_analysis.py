@@ -10,7 +10,7 @@ from bokeh.models import CustomJS, ColumnDataSource, HoverTool
 from helper.ctf_log_extraction import write_subset_star
 
 
-def main(data):
+def main(data, default_star="micrographs_all_gctf.star"):
     """Create plots"""
     def create_histograms():
         """Output grid for all histograms"""
@@ -133,27 +133,28 @@ def main(data):
             callback.args[key] = slider
             slider.js_on_change('value', callback)
 
+        def get_current_data():
+            """Get current subset of data"""
+            return data[
+                (data['Resolution_limit'].values <= res_slider.value) &
+                (data['Defocus'].values >= defocus_slider.value[0]) &
+                (data['Defocus'].values <= defocus_slider.value[1]) &
+                (data['Defocus_difference'].values <= def_diff_slider.value) &
+                (data['CC_score'].values >= cc_slider.value)
+                ]
+
         def save_subset_star():
             """"Save selected subset to new star file"""
-            keep_list = data[
-                (data['Resolution_limit'] <= res_slider.value) &
-                (data['Defocus'] >= defocus_slider.value[0]) &
-                (data['Defocus'] <= defocus_slider.value[1]) &
-                (data['Defocus_difference'] <= def_diff_slider.value) &
-                (data['CC_score'] >= cc_slider.value)
-                ]['Micrograph_name'].values
+            keep_list = get_current_data()['Micrograph_name'].values
             write_subset_star(star_in.value, star_out.value, keep_list)
 
         def write_summary():
             """Write summary data of selected subset"""
-            subset_summary.text = "Subset dataset:\n{0}".format(str(data[
-                (data['Resolution_limit'] <= res_slider.value) &
-                (data['Defocus'] >= defocus_slider.value[0]) &
-                (data['Defocus'] <= defocus_slider.value[1]) &
-                (data['Defocus_difference'] <= def_diff_slider.value) &
-                (data['CC_score'] >= cc_slider.value)
-                ][['Resolution_limit', 'Defocus',
-                   'Defocus_difference', 'CC_score']].describe()))
+            new_summary_text = get_current_data()[['Resolution_limit',
+                                                    'Defocus',
+                                                    'Defocus_difference',
+                                                    'CC_score']].describe()
+            subset_summary.text = "Subset dataset:\n{0}".format(str(new_summary_text))
 
         csv_name = TextInput(value="ctf_data.csv", title="Output CSV:")
         save_all_csv = Button(label="Save all csv", button_type="success")
@@ -192,7 +193,6 @@ def main(data):
     DEFOCUS_DIFF_MAX = ceil(data['Defocus_difference'].max() / 100) * 100
     CC_MIN = floor(data['CC_score'].min() * 100) / 100
     CC_MAX = ceil(data['CC_score'].max() * 100) / 100
-    default_star = "micrographs_all_gctf.star"
 
     source_visible = ColumnDataSource(data)
     source_available = ColumnDataSource(data)

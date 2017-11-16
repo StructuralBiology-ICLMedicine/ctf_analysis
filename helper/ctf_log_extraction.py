@@ -79,11 +79,12 @@ def write_subset_star(in_star, out_star, good_list):
                 else:
                     continue
     out.close()
+    print "Written {}".format(out_star)
 
 
-def star_build_df(file):
+def star_build_df(star):
     """Build a dataframe from a star file"""
-    data = star_to_pandas(file)
+    data = star_to_pandas(star)
     
     defocus_UV = data[['DefocusU', 'DefocusV']]
     data['Defocus'] = defocus_UV.mean(axis=1)
