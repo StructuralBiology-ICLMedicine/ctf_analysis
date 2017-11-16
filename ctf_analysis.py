@@ -74,6 +74,7 @@ def main(data):
 
         callback = CustomJS(args=dict(source_visible=source_visible,
                                       source_available=source_available), code="""
+                var time0 = performance.now();
                 var data_visible = source_visible.data;
                 var data_available = source_available.data;
 
@@ -83,18 +84,20 @@ def main(data):
                 var dif_max = dif.value;
                 var cc_min = ccs.value;
 
-                for (var key in data_available) {
-                    data_visible[key] = [];
-                    for (var i=0; i<data_available['Resolution_limit'].length; i++) {
-                        if ((data_available['Resolution_limit'][i] <= res_max) &&
-                            (data_available['Defocus'][i] >= def_min) &&
-                            (data_available['Defocus'][i] <= def_max) &&
-                            (data_available['Defocus_difference'][i] <= dif_max) &&
-                            (data_available['CC_score'][i] >= cc_min)) {
-                                data_visible[key].push(data_available[key][i]);
-                        }
+                Object.keys(data_visible).forEach((key) => {data_visible[key] = []});
+                for (var i=0; i<data_available['Resolution_limit'].length; i++) {
+                    if ((data_available['Resolution_limit'][i] <= res_max) &&
+                        (data_available['Defocus'][i] >= def_min) &&
+                        (data_available['Defocus'][i] <= def_max) &&
+                        (data_available['Defocus_difference'][i] <= dif_max) &&
+                        (data_available['CC_score'][i] >= cc_min)) {
+                            Object.keys(data_visible).forEach((key) => {
+                                data_visible[key].push(data_available[key][i])
+                            })
                     }
                 }
+                var time1 = performance.now();
+                console.log(`Filter time taken = ${time1 - time0} ms`)
                 source_visible.change.emit();
             """)
 
