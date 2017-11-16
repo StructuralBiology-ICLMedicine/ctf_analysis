@@ -74,7 +74,6 @@ def main(data, default_star="micrographs_all_gctf.star"):
 
         callback = CustomJS(args=dict(source_visible=source_visible,
                                       source_available=source_available), code="""
-                var time0 = performance.now();
                 var data_visible = source_visible.data;
                 var data_available = source_available.data;
 
@@ -96,8 +95,6 @@ def main(data, default_star="micrographs_all_gctf.star"):
                             })
                     }
                 }
-                var time1 = performance.now();
-                console.log(`Filter time taken = ${time1 - time0} ms`)
                 source_visible.change.emit();
             """)
 
@@ -151,22 +148,16 @@ def main(data, default_star="micrographs_all_gctf.star"):
         def write_summary():
             """Write summary data of selected subset"""
             new_summary_text = get_current_data()[['Resolution_limit',
-                                                    'Defocus',
-                                                    'Defocus_difference',
-                                                    'CC_score']].describe()
+                                                   'Defocus',
+                                                   'Defocus_difference',
+                                                   'CC_score']].describe()
             subset_summary.text = "Subset dataset:\n{0}".format(str(new_summary_text))
 
         csv_name = TextInput(value="ctf_data.csv", title="Output CSV:")
         save_all_csv = Button(label="Save all csv", button_type="success")
         save_all_csv.on_click(lambda: data.to_csv(csv_name.value, index=False))
         save_subset_csv = Button(label="Save subset csv", button_type="success")
-        save_subset_csv.on_click(lambda: data[
-            (data['Resolution_limit'] <= res_slider.value) &
-            (data['Defocus'] >= defocus_slider.value[0]) &
-            (data['Defocus'] <= defocus_slider.value[1]) &
-            (data['Defocus_difference'] <= def_diff_slider.value) &
-            (data['CC_score'] >= cc_slider.value)
-            ].to_csv(csv_name.value, index=False))
+        save_subset_csv.on_click(lambda: get_current_data().to_csv(csv_name.value, index=False))
         star_in = TextInput(value=default_star, title="Input star:")
         star_out = TextInput(value="subset_micrographs.star", title="Output star:")
         save_star = Button(label="Save star", button_type="success")
