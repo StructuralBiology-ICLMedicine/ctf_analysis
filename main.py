@@ -14,9 +14,10 @@ def main():
     files = args.input
     if files[0].endswith("star"):
         data = star_build_df(files[0])
+        star_name = str(files[0])
+        ctf.main(data, star_name)
     else:
         data = logs_build_df(files)
-
-    ctf.main(data)
+        ctf.main(data)
 
 main()
