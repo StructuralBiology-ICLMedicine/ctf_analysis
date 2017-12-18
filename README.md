@@ -17,7 +17,7 @@ The command is `bokeh serve --show /path/to/.../ctf_analysis/ --args input` (e.g
 
 ### Result
 This command should automatically open your browser to `localhost:5006` (or else open manually). The main page should look similar to below:
-![alt text](assets/main_page.png "Main Page example")
+![alt text](images/main_page.png "Main Page example")
 
 A summary of the complete dataset is given and you can generate one for your current subset by clicking the `Summary Stats` button.
 
@@ -26,4 +26,4 @@ Output a csv with the extracted values (e.g. if you want to plot in another prog
 Output a star file to read into relion containing just your current subset with the `Save star` button. This requires an input star to be provided in the text box above (defaults to micrographs_all_gctf.star or the input star file you ran the program with) that contains all the information you would want in the output file (e.g. what was output from GCTF or CTFFIND (if it was run through relion)).
 
 There is a second tab (Summary) that just contains histograms to show your overall data distribution. These don't do anything fun.
-![alt text](assets/summary_page.png "Summary Page example")
+![alt text](images/summary_page.png "Summary Page example")
