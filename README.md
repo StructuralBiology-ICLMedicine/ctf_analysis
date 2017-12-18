@@ -1,5 +1,5 @@
 # CTF Analysis
-This app will display interactive scatterplots that allow you to check the quality of data following collection and output a star file that is subsetted to only include the data you want.
+This app will display interactive scatterplots allowing you to check the quality of data following collection and output a star file that is subsetted to only include the data you want.
 
 Requires installation of numpy, pandas and bokeh. This can be done through pip or conda.
 
