@@ -89,11 +89,18 @@ def star_build_df(star):
     defocus_UV = data[['DefocusU', 'DefocusV']]
     data['Defocus'] = defocus_UV.mean(axis=1)
     data['Defocus_difference'] = defocus_UV.apply(lambda x: fabs(x[0] - x[1]), axis=1)
-    df_values = data[['MicrographName',
-                      'FinalResolution',
-                      'Defocus',
-                      'Defocus_difference',
-                      'CtfFigureOfMerit']]
+    try:
+        df_values = data[['MicrographName',
+                        'FinalResolution',
+                        'Defocus',
+                        'Defocus_difference',
+                        'CtfFigureOfMerit']]
+    except KeyError:
+        df_values = data[['MicrographName',
+                        'CtfMaxResolution',
+                        'Defocus',
+                        'Defocus_difference',
+                        'CtfFigureOfMerit']]
     df_values.columns = ['Micrograph_name',
                          'Resolution_limit',
                          'Defocus',
